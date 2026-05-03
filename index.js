@@ -1,12 +1,12 @@
 // const Matter = require('matter-js');
 
 function mulberry32(a) {
-	return function() {
+	return function () {
 		let t = a += 0x6D2B79F5;
 		t = Math.imul(t ^ t >>> 15, t | 1);
 		t ^= t + Math.imul(t ^ t >>> 7, t | 61);
 		return ((t ^ t >>> 14) >>> 0) / 4294967296;
-	}
+	};
 }
 
 const rand = mulberry32(Date.now());
@@ -47,7 +47,7 @@ const Game = {
 		nextFruitImg: document.getElementById('game-next-fruit'),
 		previewBall: null,
 	},
-	cache: { highscore: 0 },
+	cache: {highscore: 0},
 	sounds: {
 		click: new Audio('./assets/click.mp3'),
 		pop0: new Audio('./assets/pop0.mp3'),
@@ -78,23 +78,24 @@ const Game = {
 	},
 
 	fruitSizes: [
-		{ radius: 24,  scoreValue: 1,  img: './assets/img/circle0.png'  },
-		{ radius: 32,  scoreValue: 3,  img: './assets/img/circle1.png'  },
-		{ radius: 40,  scoreValue: 6,  img: './assets/img/circle2.png'  },
-		{ radius: 56,  scoreValue: 10, img: './assets/img/circle3.png'  },
-		{ radius: 64,  scoreValue: 15, img: './assets/img/circle4.png'  },
-		{ radius: 72,  scoreValue: 21, img: './assets/img/circle5.png'  },
-		{ radius: 84,  scoreValue: 28, img: './assets/img/circle6.png'  },
-		{ radius: 96,  scoreValue: 36, img: './assets/img/circle7.png'  },
-		{ radius: 128, scoreValue: 45, img: './assets/img/circle8.png'  },
-		{ radius: 160, scoreValue: 55, img: './assets/img/circle9.png'  },
-		{ radius: 192, scoreValue: 66, img: './assets/img/circle10.png' },
+		{radius: 24, scoreValue: 1, img: './assets/img/circle0.png'},
+		{radius: 32, scoreValue: 3, img: './assets/img/circle1.png'},
+		{radius: 40, scoreValue: 6, img: './assets/img/circle2.png'},
+		{radius: 56, scoreValue: 10, img: './assets/img/circle3.png'},
+		{radius: 64, scoreValue: 15, img: './assets/img/circle4.png'},
+		{radius: 72, scoreValue: 21, img: './assets/img/circle5.png'},
+		{radius: 84, scoreValue: 28, img: './assets/img/circle6.png'},
+		{radius: 96, scoreValue: 36, img: './assets/img/circle7.png'},
+		{radius: 128, scoreValue: 45, img: './assets/img/circle8.png'},
+		{radius: 160, scoreValue: 55, img: './assets/img/circle9.png'},
+		{radius: 192, scoreValue: 66, img: './assets/img/circle10.png'},
 	],
 	currentFruitSize: 0,
 	nextFruitSize: 0,
+	maxFruitSize: 2,
 	setNextFruitSize: function () {
-		Game.nextFruitSize = Math.floor(rand() * 5);
-		Game.elements.nextFruitImg.src = `./assets/img/circle${Game.nextFruitSize}.png`;
+		Game.nextFruitSize = Math.max(Math.floor(Math.log2(1 - rand())), 4, game.maxFruitSize);
+		Game.elements.nextFruitImg.src = Game.fruitSizes[Game.nextFruitSize].img;
 	},
 
 	showHighscore: function () {
@@ -138,7 +139,7 @@ const Game = {
 
 			Events.off(mouseConstraint, 'mousedown', menuMouseDown);
 			Game.startGame();
-		}
+		};
 
 		Events.on(mouseConstraint, 'mousedown', menuMouseDown);
 	},
@@ -153,7 +154,7 @@ const Game = {
 		Game.elements.endTitle.innerText = 'Game Over!';
 		Game.elements.ui.style.display = 'block';
 		Game.elements.end.style.display = 'none';
-		Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, { isStatic: true });
+		Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, {isStatic: true});
 		Composite.add(engine.world, Game.elements.previewBall);
 
 		setTimeout(() => {
@@ -173,7 +174,7 @@ const Game = {
 
 		Events.on(engine, 'collisionStart', function (e) {
 			for (let i = 0; i < e.pairs.length; i++) {
-				const { bodyA, bodyB } = e.pairs[i];
+				const {bodyA, bodyB} = e.pairs[i];
 
 				// Skip if collision is wall
 				if (bodyA.isStatic || bodyB.isStatic) continue;
@@ -189,6 +190,9 @@ const Game = {
 
 				// Skip different sizes
 				if (bodyA.sizeIndex !== bodyB.sizeIndex) continue;
+
+				// Skip fruits that are too big
+				if (bodyA.sizeIndex >= Game.maxFruitSize) continue;
 
 				// Skip if already popped
 				if (bodyA.popped || bodyB.popped) continue;
@@ -221,7 +225,7 @@ const Game = {
 	addPop: function (x, y, r) {
 		const circle = Bodies.circle(x, y, r, {
 			isStatic: true,
-			collisionFilter: { mask: 0x0040 },
+			collisionFilter: {mask: 0x0040},
 			angle: rand() * (Math.PI * 2),
 			render: {
 				sprite: {
@@ -259,7 +263,7 @@ const Game = {
 		const circle = Bodies.circle(x, y, size.radius, {
 			...friction,
 			...extraConfig,
-			render: { sprite: { texture: size.img, xScale: size.radius / 512, yScale: size.radius / 512 } },
+			render: {sprite: {texture: size.img, xScale: size.radius / 512, yScale: size.radius / 512}},
 		});
 		circle.sizeIndex = sizeIndex;
 		circle.popped = false;
@@ -283,7 +287,7 @@ const Game = {
 		Composite.remove(engine.world, Game.elements.previewBall);
 		Game.elements.previewBall = Game.generateFruitBody(render.mouse.position.x, previewBallHeight, Game.currentFruitSize, {
 			isStatic: true,
-			collisionFilter: { mask: 0x0040 }
+			collisionFilter: {mask: 0x0040}
 		});
 
 		setTimeout(() => {
@@ -293,7 +297,135 @@ const Game = {
 			}
 		}, 500);
 	}
-}
+};
+
+/// PROGRESSION ///
+const PROG_HEIGHT = "Progressive Field Height";
+const PROG_FRUIT = "Progressive Max Fruit";
+const PROG_NEXT = "Next Fruit View";
+
+/// USEFUL ///
+const USEF_DROP_COOLDOWN = "Progressive Drop Cooldown Reduction";
+const USEF_POINTS = "Bonus Points";
+
+/// TRAPS ///
+// causes the lined-up fruit to be dropped instantly
+const TRAP_INSTA_DROP = "Instant Drop Trap";
+// the position of each fruit is swapped with another fruit, at random (FY-shuffle?)
+const TRAP_SHUFFLE = "Shuffle Trap";
+// applies a large impulse to the bottom of the board
+const TRAP_IMPULSE = "Impulse Trap";
+// deletes 50% of fruits on the board, at random
+const TRAP_THANOS = "Thanos Trap";
+
+const apClient = new Client();
+
+const windowLogin = (/** @type{HTMLButtonElement} */document.getElementById("login"));
+const windowChat = (/** @type{HTMLButtonElement} */document.getElementById("chat"));
+
+const loginButton = (/** @type{HTMLButtonElement} */document.getElementById("connect"));
+const loginStatus = (/** @type{HTMLDivElement} */document.getElementById("connect-error"));
+const serverInput = (/** @type{HTMLInputElement} */document.getElementById("server"));
+const slotInput = (/** @type{HTMLInputElement} */document.getElementById("slot"));
+const passwordInput = (/** @type{HTMLInputElement} */document.getElementById("password"));
+
+const chatLog = (/** @type{HTMLDivElement} */document.getElementById("chat-log"));
+const chatBox = (/** @type{HTMLInputElement} */document.getElementById("chat-box"));
+const chatSend = (/** @type{HTMLButtonElement} */document.getElementById("chat-send"));
+
+apClient.messages.on("message", (_plainText, /** @type{(
+		ItemMessageNode
+		| LocationMessageNode
+		| ColorMessageNode
+		| TextualMessageNode
+		| PlayerMessageNode
+	)[]} */ nodes) => {
+	const newMessage = document.createElement("span");
+	for (const node of nodes) {
+		const messagePart = document.createElement("span");
+		messagePart.innerText = node.text;
+		switch (node.type) {
+			case "item":
+				const item = node.item;
+				if (item.progression) {
+					messagePart.classList.add("progression");
+				}
+				if (item.useful) {
+					messagePart.classList.add("useful");
+				}
+				if (item.trap) {
+					messagePart.classList.add("trap");
+				}
+				if (item.filler) {
+					messagePart.classList.add("filler");
+				}
+				break;
+			case "location":
+				messagePart.classList.add("location");
+				break;
+			case "color":
+				messagePart.classList.add(node.color);
+				break;
+			case "text":
+			case "entrance":
+				break;
+			case "player":
+				messagePart.classList.add(
+					node.player.name == apClient.name
+						? "local-player"
+						: "other-player"
+				);
+				break;
+			default:
+				console.log("Error parsing node type " + node.type);
+		}
+		newMessage.appendChild(messagePart);
+	}
+	chatLog.appendChild(newMessage);
+});
+
+loginButton?.addEventListener("click", async () => {
+	loginStatus.innerText = "Attempting to log in...";
+	loginStatus.classList.remove("error");
+	try {
+		const slotData = await apClient.login(serverInput.value, slotInput.value, "Suikapelago", {
+			password: passwordInput.value,
+			tags: ["DeathLink"],
+		});
+		const FRUIT_NAMES = [
+			"Cherry",
+			"Strawberry",
+			"Grapes",
+			"Dekopon",
+			"Persimmon",
+			"Apple",
+			"Pear",
+			"Peach",
+			"Pineapple",
+			"Melon",
+			"Watermelon",
+		];
+		if (slotData.shuffle_fruit) {
+			document.querySelector("#circle").classList.add("shuffled");
+			for (let i = 0; i < 11; i++) {
+				const targetFruit = slotData.shuffle_fruit[i];
+				document.querySelector(`#circle-${i}`).src =
+					Game.fruitSizes[i].img = `./assets/img/circle${targetFruit}.png`;
+				Game.fruitSizes[i].name = FRUIT_NAMES[targetFruit];
+			}
+		} else {
+			for (let i = 0; i < 11; i++) {
+				Game.fruitSizes[i].name = FRUIT_NAMES[i];
+			}
+		}
+		Game.startGame();
+		windowLogin.style.display = "none";
+		windowChat.style.removeProperty("display");
+	} catch (e) {
+		loginStatus.innerText = e.toString();
+		loginStatus.classList.add("error");
+	}
+});
 
 const engine = Engine.create();
 const runner = Runner.create();
@@ -311,37 +443,31 @@ const render = Render.create({
 const menuStatics = [
 	Bodies.rectangle(Game.width / 2, Game.height * 0.4, 512, 512, {
 		isStatic: true,
-		render: { sprite: { texture: './assets/img/bg-menu.png' } },
+		render: {sprite: {texture: './assets/img/bg-menu.png'}},
 	}),
 
 	// Add each fruit in a circle
 	...Array.apply(null, Array(Game.fruitSizes.length)).map((_, index) => {
-		const x = (Game.width / 2) + 192 * Math.cos((Math.PI * 2 * index)/12);
-		const y = (Game.height * 0.4) + 192 * Math.sin((Math.PI * 2 * index)/12);
+		const x = (Game.width / 2) + 192 * Math.cos((Math.PI * 2 * index) / 12);
+		const y = (Game.height * 0.4) + 192 * Math.sin((Math.PI * 2 * index) / 12);
 		const r = 64;
 
 		return Bodies.circle(x, y, r, {
 			isStatic: true,
 			render: {
 				sprite: {
-					texture: `./assets/img/circle${index}.png`,
+					texture: Game.fruitSizes[index].img,
 					xScale: r / 1024,
 					yScale: r / 1024,
 				},
 			},
 		});
 	}),
-
-	Bodies.rectangle(Game.width / 2, Game.height * 0.75, 512, 96, {
-		isStatic: true,
-		label: 'btn-start',
-		render: { sprite: { texture: './assets/img/btn-start.png' } },
-	}),
 ];
 
 const wallProps = {
 	isStatic: true,
-	render: { fillStyle: '#FFEEDB' },
+	render: {fillStyle: '#FFEEDB'},
 	...friction,
 };
 
