@@ -84,6 +84,7 @@ body {
     width: 20%;
     aspect-ratio: 1 / 1;
     transform: translate(-50%, 50%);
+    transition: all 250ms ease-in-out;
     position: absolute;
 }
 
@@ -255,7 +256,7 @@ body {
 
 #login {
     margin: auto;
-    width: 100%;
+    width: calc(100% - 32px);
     max-width: 320px;
     display: flex;
     flex-direction: column;
@@ -269,14 +270,11 @@ label {
     flex-direction: column;
 }
 
-#circle img {
-    transition: all 250ms ease-in-out;
-}
-
 .circle-container {
     position: relative;
+    margin: auto;
     max-width: 320px;
-    width: 100%;
+    width: 80%;
     aspect-ratio: 1 / 1;
 }
 
