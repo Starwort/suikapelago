@@ -29,4 +29,3 @@ class SuikapelagoWebWorld(WebWorld):
 
     # We add these tutorials to our WebWorld by overriding the "tutorials" field.
     tutorials = [setup_en]
-

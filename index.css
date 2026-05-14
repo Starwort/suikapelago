@@ -116,7 +116,7 @@ body {
     grid-area: msg;
     height: 100%;
     overflow-y: scroll;
-    color: rgb(200, 200, 200);
+    color: rgb(50, 50, 50);
 }
 
 .progression {
@@ -176,11 +176,12 @@ body {
 
 .green {
     color: rgb(0, 255, 127);
+    background-color: rgba(0, 0, 0, 0.25);
 }
 
 .yellow {
     color: rgb(255, 255, 127);
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .blue {
@@ -193,12 +194,12 @@ body {
 
 .cyan {
     color: rgb(127, 255, 255);
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .white {
     color: white;
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .black_bg {
@@ -422,7 +423,7 @@ label {
     font-size: 16px;
 }
 
-#game-highscore-value {
+#next-check {
     color: #333;
     font-weight: 700;
     font-size: 24px;
