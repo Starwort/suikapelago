@@ -18,7 +18,7 @@ const {
 
 const wallPad = 64;
 const maxLoseHeight = 84;
-let loseHeight = 84;
+const playAreaBottom = 912;
 const statusBarHeight = 48;
 const previewBallHeight = 32;
 const friction = {
@@ -38,6 +38,14 @@ const GameStates = {
 const Game = {
     width: 640,
     height: 960,
+    _loseHeight: maxLoseHeight,
+    get loseHeight() {
+        return this._loseHeight;
+    },
+    set loseHeight(value) {
+        this._loseHeight = value;
+        this.elements.gameCeiling.style.setProperty("--lose-height", value);
+    },
     elements: {
         canvas: document.getElementById('game-canvas'),
         ui: document.getElementById('game-ui'),
@@ -46,6 +54,9 @@ const Game = {
         endTitle: document.getElementById('game-end-title'),
         next: document.getElementById("next"),
         nextFruitImg: document.getElementById('game-next-fruit'),
+        scoresanityNext: document.getElementById('next-check'),
+        scoresanityLabel: document.getElementById('scoresanity-label'),
+        gameCeiling: document.getElementById("game-ceiling"),
         previewBall: null,
     },
     sounds: {
@@ -76,7 +87,7 @@ const Game = {
         } else {
             return this._scoreThresholds = Array.from(
                 {length: 20},
-                (_, threshold) => (1500 + 500 * Game.scoresanityDifficulty) * Math.pow((threshold + 1) / 20, 2.5)
+                (_, threshold) => Math.ceil((1500 + 500 * Game.scoresanityDifficulty) * Math.pow((threshold + 1) / 20, 2.5))
             );
         }
     },
@@ -92,6 +103,11 @@ const Game = {
                 const scoreThreshold = Game.scoreThresholds[i];
                 if (Game.score < scoreThreshold && scoreThreshold <= newScore) {
                     apClient.check(i + 11);
+                    if (i == 19) {
+                        Game.elements.scoresanityNext.innerText = "N/A";
+                    } else {
+                        Game.elements.scoresanityNext.innerText = Game.scoreThresholds[i + 1];
+                    }
                 }
             }
             if (newScore >= this.scoreThresholds[19] && (
@@ -194,7 +210,7 @@ const Game = {
                 const bY = bodyB.position.y + bodyB.circleRadius;
 
                 // Uh oh, too high!
-                if (aY < loseHeight || bY < loseHeight) {
+                if (aY < Game.loseHeight || bY < Game.loseHeight) {
                     if (this.deathLink) {
                         apClient.deathLink.sendDeathLink(apClient.name, `${apClient.name} topped out!`);
                     }
@@ -451,8 +467,8 @@ const getItems = (items, index) => {
                     break;
                 case PROG_HEIGHT:
                     Game.heightUpgrades++;
-                    loseHeight = (Game.heightUpgrades / (2 * Game.maxHeightUpgrades) + 0.5) * maxLoseHeight;
-                    // TODO: update visual for this
+                    const heightUpgradeProgress = (0.5 - Game.heightUpgrades / (2 * Game.maxHeightUpgrades));
+                    Game.loseHeight = heightUpgradeProgress * (playAreaBottom - maxLoseHeight) + maxLoseHeight;
                     break;
                 case PROG_NEXT:
                     Game.hasNext = true;
@@ -596,7 +612,7 @@ loginButton?.addEventListener("click", async () => {
             }
         }
         if (height_upgrade_count != 0) {
-            loseHeight = maxLoseHeight / 2;
+            Game.loseHeight = maxLoseHeight + (playAreaBottom - maxLoseHeight) / 2;
             Game.heightUpgrades = 0;
             Game.maxHeightUpgrades = height_upgrade_count;
         }
@@ -611,6 +627,12 @@ loginButton?.addEventListener("click", async () => {
         Game.scoresanityDifficulty = difficulty;
         Game.maxFruitSize = max_fruit_size - 1;
         Game.deathLink = deathlink;
+        if (scoresanity) {
+            Game.elements.scoresanityNext.innerText = Game.scoreThresholds[0];
+        } else {
+            Game.elements.scoresanityLabel.display = "none";
+            Game.elements.scoresanityNext.display = "none";
+        }
         Game.startGame();
         windowLogin.style.display = "none";
         windowChat.style.removeProperty("display");

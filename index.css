@@ -353,11 +353,7 @@ label {
     position: absolute;
     width: 100%;
     border-bottom: 2px dotted #333;
-    font-size: 84px;
-    font-weight: 900;
-    padding-left: 16px;
-    color: var(--col-bg-lighter);
-    text-shadow: 3px 3px 0 var(--col-primary), -3px -3px 0 var(--col-primary), -3px 3px 0 var(--col-primary), 3px -3px 0 var(--col-primary);
+    height: calc(var(--lose-height, 84) * 1px);
 }
 
 #game-end-container {
