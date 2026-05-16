@@ -158,7 +158,7 @@ const Game = {
         this._maxFruitSize = value;
     },
     setNextFruitSize: function () {
-        Game.nextFruitSize = Math.min(Math.floor(Math.pow(rand(), 2) * 5), Game.maxFruitSize);
+        Game.nextFruitSize = Math.floor(Math.pow(rand(), 2) * Math.min(5, Game.maxFruitSize));
         Game.elements.nextFruitImg.src = Game.fruitSizes[Game.nextFruitSize].img;
     },
 
