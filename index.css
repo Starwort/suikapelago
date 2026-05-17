@@ -39,6 +39,8 @@ body {
     max-width: 640px;
     height: 100vh;
     grid-area: game;
+    display: flex;
+    align-items: center;
 }
 
 #game-ui {
@@ -96,11 +98,13 @@ body {
     justify-content: end;
     height: 100%;
     width: 100%;
+    max-height: 100%;
 }
 
 #chat {
     margin: 16px;
     width: calc(100% - 32px);
+    max-height: calc(100% - 32px);
     height: calc(100% - 32px);
     display: grid;
     grid-template-areas:
@@ -116,6 +120,7 @@ body {
     flex-direction: column;
     grid-area: msg;
     height: 100%;
+    max-height: 100%;
     overflow-y: scroll;
     color: rgb(50, 50, 50);
 }
@@ -250,7 +255,7 @@ body {
     color: red;
 }
 
-#ap-chat>div {
+#ap-chat>* {
     background-color: #ffeace;
     padding: 16px;
     border-radius: 16px;

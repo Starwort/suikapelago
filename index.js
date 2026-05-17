@@ -549,7 +549,7 @@ apClient.deathLink.on("deathReceived", (source, time, cause) => {
     }
 });
 
-loginButton?.addEventListener("click", async () => {
+windowLogin.addEventListener("submit", async (event) => {
     loginStatus.innerText = "Attempting to log in...";
     loginStatus.classList.remove("error");
     try {
@@ -638,6 +638,7 @@ loginButton?.addEventListener("click", async () => {
         loginStatus.innerText = e.toString();
         loginStatus.classList.add("error");
     }
+    event.preventDefault();
 });
 
 const engine = Engine.create();
