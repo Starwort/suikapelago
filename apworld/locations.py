@@ -27,18 +27,18 @@ BEST_FRUIT_LOCS = [
 # We will have a lookup from location name to ID here that, in world.py, we will import and bind to the world class.
 # Even if a location doesn't exist on specific options, it must be present in this lookup.
 LOCATION_NAME_TO_ID = {
-    "Best fruit: Cherry or better": 0,
-    "Best fruit: Strawberry or better": 1,
-    "Best fruit: Grapes or better": 2,
-    "Best fruit: Dekopon or better": 3,
-    "Best fruit: Persimmon or better": 4,
-    "Best fruit: Apple or better": 5,
-    "Best fruit: Pear or better": 6,
-    "Best fruit: Peach or better": 7,
-    "Best fruit: Pineapple or better": 8,
-    "Best fruit: Melon or better": 9,
-    "Best fruit: Watermelon or better": 10,
-    **{f"Score threshold {i}": 10 + i for i in range(1, 21)},
+    "Best fruit: Cherry or better": 1,
+    "Best fruit: Strawberry or better": 2,
+    "Best fruit: Grapes or better": 3,
+    "Best fruit: Dekopon or better": 4,
+    "Best fruit: Persimmon or better": 5,
+    "Best fruit: Apple or better": 6,
+    "Best fruit: Pear or better": 7,
+    "Best fruit: Peach or better": 8,
+    "Best fruit: Pineapple or better": 9,
+    "Best fruit: Melon or better": 10,
+    "Best fruit: Watermelon or better": 11,
+    **{f"Score threshold {i}": 11 + i for i in range(1, 21)},
 }
 
 

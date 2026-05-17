@@ -102,7 +102,7 @@ const Game = {
             for (let i = 0; i < 20; i++) {
                 const scoreThreshold = Game.scoreThresholds[i];
                 if (Game.score < scoreThreshold && scoreThreshold <= newScore) {
-                    apClient.check(i + 11);
+                    apClient.check(i + 12);
                     if (i == 19) {
                         Game.elements.scoresanityNext.innerText = "N/A";
                     } else {
@@ -625,7 +625,7 @@ windowLogin.addEventListener("submit", async (event) => {
         for (let i = 0; i < 11; i++) {
             Game.fruitSizes[i].name = FRUIT_NAMES[i];
             Game.fruitSizes[i].imgEl = document.querySelector(`#circle-${i}`);
-            Game.fruitSizes[i].location = i;
+            Game.fruitSizes[i].location = i + 1;
             if (i > 0) {
                 Game.fruitSizes[i].imgEl.classList.add("circle-unavailable");
             }
@@ -637,7 +637,7 @@ windowLogin.addEventListener("submit", async (event) => {
                 Game.fruitSizes[i].imgEl.src =
                     Game.fruitSizes[i].img = `./assets/img/circle${targetFruit}.png`;
                 Game.fruitSizes[i].name = FRUIT_NAMES[targetFruit];
-                Game.fruitSizes[i].location = targetFruit;
+                Game.fruitSizes[i].location = targetFruit + 1;
             }
         }
         if (height_upgrade_count != 0) {
