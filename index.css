@@ -106,16 +106,16 @@ body {
     width: calc(100% - 32px);
     max-height: calc(100% - 32px);
     height: calc(100% - 32px);
-    display: grid;
-    grid-template-areas:
-        "title title"
-        "msg msg"
-        "box send";
-    grid-template-columns: 1fr min-content;
-    grid-template-rows: min-content 1fr min-content;
+    display: flex;
+    flex-direction: column;
+}
+#chat>form {
+    display: flex;
+    flex-direction: row;
 }
 
 #chat-log {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     grid-area: msg;
@@ -244,11 +244,7 @@ body {
 
 #chat-box {
     width: 100%;
-    grid-area: box;
-}
-
-#chat-send {
-    grid-area: send;
+    flex-grow: 1;
 }
 
 .error {

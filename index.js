@@ -379,8 +379,8 @@ const TRAP_THANOS = "Thanos Trap";
 
 const apClient = new Client();
 
-const windowLogin = (/** @type{HTMLButtonElement} */document.getElementById("login"));
-const windowChat = (/** @type{HTMLButtonElement} */document.getElementById("chat"));
+const windowLogin = (/** @type{HTMLFormElement} */document.getElementById("login"));
+const windowChat = (/** @type{HTMLDivElement} */document.getElementById("chat"));
 
 const loginButton = (/** @type{HTMLButtonElement} */document.getElementById("connect"));
 const loginStatus = (/** @type{HTMLDivElement} */document.getElementById("connect-error"));
@@ -390,7 +390,7 @@ const passwordInput = (/** @type{HTMLInputElement} */document.getElementById("pa
 
 const chatLog = (/** @type{HTMLDivElement} */document.getElementById("chat-log"));
 const chatBox = (/** @type{HTMLInputElement} */document.getElementById("chat-box"));
-const chatSend = (/** @type{HTMLButtonElement} */document.getElementById("chat-send"));
+const chatSend = (/** @type{HTMLFormElement} */document.getElementById("chat-send"));
 
 const writeChatMsg = (
     _plainText,
@@ -444,11 +444,10 @@ const writeChatMsg = (
         newMessage.appendChild(messagePart);
     }
     chatLog.appendChild(newMessage);
+    newMessage.scrollIntoView();
 };
 
-apClient.messages.on("message",
-    writeChatMsg,
-);
+apClient.messages.on("message", writeChatMsg);
 
 let nextIdx = 0;
 const getItems = (items, index) => {
@@ -549,7 +548,39 @@ apClient.deathLink.on("deathReceived", (source, time, cause) => {
     }
 });
 
+const chatHistory = [];
+let chatHistoryIndex = 0;
+chatSend.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (chatBox.value) {
+        apClient.messages.say(chatBox.value);
+        chatHistory.push(chatBox.value);
+        chatHistoryIndex = chatHistory.length;
+        chatBox.value = "";
+    }
+});
+chatBox.addEventListener("keydown", (event) => {
+    if (event.shiftKey || event.ctrlKey || event.altKey) {
+        return;
+    }
+    switch (event.key) {
+        case "ArrowUp":
+            if (chatHistoryIndex > 0) {
+                chatHistoryIndex--;
+                chatBox.value = chatHistory[chatHistoryIndex];
+            }
+            break;
+        case "ArrowDown":
+            if (chatHistoryIndex < chatHistory.length) {
+                chatHistoryIndex++;
+                chatBox.value = chatHistory[chatHistoryIndex];
+            }
+            break;
+    }
+});
+
 windowLogin.addEventListener("submit", async (event) => {
+    event.preventDefault();
     loginStatus.innerText = "Attempting to log in...";
     loginStatus.classList.remove("error");
     try {
@@ -638,7 +669,6 @@ windowLogin.addEventListener("submit", async (event) => {
         loginStatus.innerText = e.toString();
         loginStatus.classList.add("error");
     }
-    event.preventDefault();
 });
 
 const engine = Engine.create();
