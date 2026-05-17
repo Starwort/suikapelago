@@ -279,16 +279,14 @@ const Game = {
         // Game.startGame();
 
         setTimeout(() => {
-            const bodies = engine.world.bodies
-                .slice(3) // game walls
-                .filter(i => i.id != Game.elements.previewBall.id);
-            for (const body of bodies) {
+            Game.fruitsMerged = Array.apply(null, Array(Game.fruitSizes.length)).map(() => 0);
+            for (const body of engine.world.bodies.slice(3)) {
                 Matter.Composite.remove(engine.world, body);
             }
 
             Game.startGame();
             runner.enabled = true;
-        }, 1000);
+        }, 5000);
     },
 
     // Returns an index, or null
