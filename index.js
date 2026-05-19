@@ -207,7 +207,7 @@ const Game = {
             Game.stateIndex = GameStates.READY;
         }, 250);
 
-        Events.on(mouseConstraint, 'mouseup', function (e) {
+        Events.on(mouseConstraint, 'mousedown', function (e) {
             if (e.mouse.button != 0) {
                 return;
             }
