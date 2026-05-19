@@ -211,8 +211,6 @@ const Game = {
             if (e.mouse.button != 0) {
                 return;
             }
-            Game.secrecyDuration--;
-            Game.blindDuration--;
             Game.addFruit(e.mouse.position.x);
         });
 
@@ -385,6 +383,8 @@ const Game = {
         if (Game.stateIndex !== GameStates.READY) return;
 
         Game.sounds.click.play();
+        Game.secrecyDuration--;
+        Game.blindDuration--;
 
         Game.stateIndex = GameStates.DROP;
         const latestFruit = Game.generateFruitBody(x, previewBallHeight, Game.currentFruitSize);
