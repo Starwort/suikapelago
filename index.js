@@ -308,6 +308,10 @@ const Game = {
         Game.elements.end.style.display = 'flex';
         Game.elements.endTitle.innerText = why;
         runner.enabled = false;
+        if (this.dropTimeout !== null) {
+            clearTimeout(this.dropTimeout);
+            this.dropTimeout = null;
+        }
         // Game.startGame();
 
         if (autoReset) {
@@ -370,6 +374,7 @@ const Game = {
     },
 
     cooldown: 0,
+    dropTimeout: null,
     addFruit: function (x) {
         if (Game.stateIndex !== GameStates.READY) return;
 
@@ -391,7 +396,7 @@ const Game = {
 
         let shouldNotify = Game.cooldown > 5_000;
 
-        setTimeout(() => {
+        this.dropTimeout = setTimeout(() => {
             if (Game.stateIndex === GameStates.DROP) {
                 Composite.add(engine.world, Game.elements.previewBall);
                 Game.stateIndex = GameStates.READY;
