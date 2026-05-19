@@ -38,6 +38,28 @@ const GameStates = {
 const Game = {
     width: 640,
     height: 960,
+    _secrecyDuration: 0,
+    _blindDuration: 0,
+    get secrecyDuration() {
+        return this._secrecyDuration;
+    },
+    set secrecyDuration(value) {
+        if (value < 0) {
+            return;
+        }
+        this._secrecyDuration = value;
+        Game.elements.previewBall?.render.visible = value == 0;
+    },
+    get blindDuration() {
+        return this._blindDuration;
+    },
+    set blindDuration(value) {
+        if (value < 0) {
+            return;
+        }
+        this._blindDuration = value;
+        Game.elements.ui.classList.toggle("blind", value != 0);
+    },
     _loseHeight: maxLoseHeight,
     get loseHeight() {
         return this._loseHeight;
@@ -193,6 +215,11 @@ const Game = {
         }, 250);
 
         Events.on(mouseConstraint, 'mouseup', function (e) {
+            if (e.mouse.button != 0) {
+                return;
+            }
+            secrecyDuration--;
+            blindDuration--;
             Game.addFruit(e.mouse.position.x);
         });
 
@@ -335,6 +362,10 @@ const Game = {
         circle.sizeIndex = sizeIndex;
         circle.popped = false;
 
+        if (isPreviewBall) {
+            circle.render.visible = this.secrecyDuration == 0;
+        }
+
         return circle;
     },
 
@@ -390,6 +421,10 @@ const TRAP_SHUFFLE = "Shuffle Trap";
 const TRAP_IMPULSE = "Impulse Trap";
 // deletes 50% of fruits on the board, at random
 const TRAP_THANOS = "Thanos Trap";
+// hides your next view for 3 fruit drops (cumulative)
+const TRAP_SECRECY = "Secrecy Trap";
+// hides your entire board for 3 drops (cumulative)
+const TRAP_BLIND = "Blindness Trap";
 
 const apClient = new Client();
 
@@ -503,6 +538,12 @@ const getItems = (items, index) => {
                     break;
                 case TRAP_INSTA_DROP:
                     Game.addFruit(Game.elements.previewBall.position.x);
+                    break;
+                case TRAP_SECRECY:
+                    Game.secrecyDuration += 3;
+                    break;
+                case TRAP_BLIND:
+                    Game.blindDuration += 3;
                     break;
             }
         }

@@ -26,6 +26,10 @@ TRAP_SHUFFLE = "Shuffle Trap"
 TRAP_IMPULSE = "Impulse Trap"
 # deletes 50% of fruits on the board, at random
 TRAP_THANOS = "Thanos Trap"
+# hides your next view for 3 fruit drops (cumulative)
+TRAP_SECRECY = "Secrecy Trap"
+# hides your entire board for 3 drops (cumulative)
+TRAP_BLIND = "Blindness Trap"
 
 ### FILLER ###
 FILL_SMOOTHIE = "Fruit Smoothie"
@@ -43,7 +47,9 @@ ITEM_NAME_TO_ID = {
     TRAP_SHUFFLE: 7,
     TRAP_IMPULSE: 8,
     TRAP_THANOS: 9,
-    FILL_SMOOTHIE: 10,
+    TRAP_SECRECY: 10,
+    TRAP_BLIND: 11,
+    FILL_SMOOTHIE: 12,
 }
 
 # Items should have a defined default classification.
@@ -58,6 +64,8 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     TRAP_SHUFFLE: ItemClassification.trap,
     TRAP_IMPULSE: ItemClassification.trap,
     TRAP_THANOS: ItemClassification.trap,
+    TRAP_SECRECY: ItemClassification.trap,
+    TRAP_BLIND: ItemClassification.trap,
     FILL_SMOOTHIE: ItemClassification.filler,
 }
 
@@ -75,12 +83,21 @@ def get_random_filler_item_name(world: SuikapelagoWorld) -> str:
     item_class = world.random.randrange(100)
     if item_class < world.options.trap_chance:
         return world.random.choices(
-            [TRAP_INSTA_DROP, TRAP_SHUFFLE, TRAP_IMPULSE, TRAP_THANOS],
+            [
+                TRAP_INSTA_DROP,
+                TRAP_SHUFFLE,
+                TRAP_IMPULSE,
+                TRAP_THANOS,
+                TRAP_SECRECY,
+                TRAP_BLIND,
+            ],
             weights=[
                 +world.options.insta_drop_trap_weight,
                 +world.options.shuffle_trap_weight,
                 +world.options.impulse_trap_weight,
                 +world.options.thanos_trap_weight,
+                +world.options.secrecy_trap_weight,
+                +world.options.blind_trap_weight,
             ],
         )[0]
     elif item_class < world.options.trap_chance + world.options.bonus_points_chance:

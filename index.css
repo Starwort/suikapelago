@@ -52,6 +52,11 @@ body {
     font-weight: 700;
     display: none;
     transform-origin: top left;
+    transition: background 250ms ease-out;
+}
+
+#game-ui.blind {
+    background: black;
 }
 
 #scores {
@@ -109,6 +114,7 @@ body {
     display: flex;
     flex-direction: column;
 }
+
 #chat>form {
     display: flex;
     flex-direction: row;

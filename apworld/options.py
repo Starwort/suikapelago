@@ -122,6 +122,42 @@ class ThanosTrapWeight(Range):
     default = 50
 
 
+class SecrecyTrapWeight(Range):
+    """
+    The relative weight that any given trap will be a Secrecy Trap.
+
+    Note that this is relative to the weights of other traps; if you have
+    Instant Drop Trap set to 50, Shuffle Trap set to 25, and all other traps set
+    to 0, there will be a 2/3 chance of Instant Drop trap being selected when a
+    trap is generated
+    """
+
+    display_name = "Secrecy Trap weight"
+
+    range_start = 0
+    range_end = 100
+
+    default = 50
+
+
+class BlindTrapWeight(Range):
+    """
+    The relative weight that any given trap will be a Blindness Trap.
+
+    Note that this is relative to the weights of other traps; if you have
+    Instant Drop Trap set to 50, Shuffle Trap set to 25, and all other traps set
+    to 0, there will be a 2/3 chance of Instant Drop trap being selected when a
+    trap is generated
+    """
+
+    display_name = "Blindness Trap weight"
+
+    range_start = 0
+    range_end = 100
+
+    default = 50
+
+
 class BonusPointsChance(Range):
     """
     Chance, in percent, that any given filler item will be replaced with some
@@ -240,6 +276,8 @@ option_groups = [
             ShuffleTrapWeight,
             ImpulseTrapWeight,
             ThanosTrapWeight,
+            SecrecyTrapWeight,
+            BlindTrapWeight,
         ],
     ),
 ]
@@ -262,3 +300,5 @@ class SuikapelagoOptions(PerGameCommonOptions):
     shuffle_trap_weight: ShuffleTrapWeight
     impulse_trap_weight: ImpulseTrapWeight
     thanos_trap_weight: ThanosTrapWeight
+    secrecy_trap_weight: SecrecyTrapWeight
+    blind_trap_weight: BlindTrapWeight
