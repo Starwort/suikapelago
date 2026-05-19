@@ -200,17 +200,8 @@ const Game = {
         Game.fruitsMerged = Array.apply(null, Array(Game.fruitSizes.length)).map(() => 0);
     },
 
-    startGame: function () {
-        Game.sounds.click.play();
-
-        Composite.remove(engine.world, menuStatics);
-        Composite.add(engine.world, gameStatics);
-
-        Game.calculateScore();
-        Game.elements.ui.style.display = 'block';
-        Game.elements.end.style.display = 'none';
-        Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, {isStatic: true}, true);
-        Composite.add(engine.world, Game.elements.previewBall);
+    startGameOnce() {
+        this.startGame();
 
         setTimeout(() => {
             Game.stateIndex = GameStates.READY;
@@ -283,6 +274,19 @@ const Game = {
                 Game.calculateScore();
             }
         });
+    },
+
+    startGame: function () {
+        Game.sounds.click.play();
+
+        Composite.remove(engine.world, menuStatics);
+        Composite.add(engine.world, gameStatics);
+
+        Game.calculateScore();
+        Game.elements.ui.style.display = 'block';
+        Game.elements.end.style.display = 'none';
+        Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, {isStatic: true}, true);
+        Composite.add(engine.world, Game.elements.previewBall);
     },
 
     addPop: function (x, y, r) {
@@ -727,7 +731,7 @@ windowLogin.addEventListener("submit", async (event) => {
             Game.elements.scoresanityLabel.display = "none";
             Game.elements.scoresanityNext.display = "none";
         }
-        Game.startGame();
+        Game.startGameOnce();
         windowLogin.style.display = "none";
         windowChat.style.removeProperty("display");
     } catch (e) {
