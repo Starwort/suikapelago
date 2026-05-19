@@ -185,7 +185,7 @@ const Game = {
         Game.calculateScore();
         Game.elements.ui.style.display = 'block';
         Game.elements.end.style.display = 'none';
-        Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, {isStatic: true});
+        Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, {isStatic: true}, true);
         Composite.add(engine.world, Game.elements.previewBall);
 
         setTimeout(() => {
@@ -312,8 +312,8 @@ const Game = {
     },
 
     bestSize: -1,
-    generateFruitBody: function (x, y, sizeIndex, extraConfig = {}) {
-        if (sizeIndex > this.bestSize) {
+    generateFruitBody: function (x, y, sizeIndex, extraConfig = {}, isPreviewBall = false) {
+        if (sizeIndex > this.bestSize && !isPreviewBall) {
             for (let i = sizeIndex; i > this.bestSize; i--) {
                 apClient.check(Game.fruitSizes[i].location);
             }
@@ -356,7 +356,7 @@ const Game = {
         Game.elements.previewBall = Game.generateFruitBody(render.mouse.position.x, previewBallHeight, Game.currentFruitSize, {
             isStatic: true,
             collisionFilter: {mask: 0x0040}
-        });
+        }, true);
 
         let shouldNotify = Game.cooldown > 5_000;
 
