@@ -70,7 +70,7 @@ class InstaDropTrapWeight(Range):
 
 class ShuffleTrapWeight(Range):
     """
-    The relative weight that any given trap will be an Shuffle Trap.
+    The relative weight that any given trap will be a Shuffle Trap.
 
     Note that this is relative to the weights of other traps; if you have
     Instant Drop Trap set to 50, Shuffle Trap set to 25, and all other traps set
@@ -106,7 +106,7 @@ class ImpulseTrapWeight(Range):
 
 class ThanosTrapWeight(Range):
     """
-    The relative weight that any given trap will be an Thanos Trap.
+    The relative weight that any given trap will be a Thanos Trap.
 
     Note that this is relative to the weights of other traps; if you have
     Instant Drop Trap set to 50, Shuffle Trap set to 25, and all other traps set
