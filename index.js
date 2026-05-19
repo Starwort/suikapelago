@@ -91,6 +91,7 @@ const Game = {
             );
         }
     },
+    bestScore: 0,
     calculateScore: function () {
         const score = Game.fruitsMerged.reduce((total, count, sizeIndex) => {
             const value = Game.fruitSizes[sizeIndex].scoreValue * count;
@@ -101,7 +102,7 @@ const Game = {
         if (Game.scoresanity) {
             for (let i = 0; i < 20; i++) {
                 const scoreThreshold = Game.scoreThresholds[i];
-                if (Game.score < scoreThreshold && scoreThreshold <= newScore) {
+                if (this.bestScore < scoreThreshold && scoreThreshold <= newScore) {
                     apClient.check(i + 12);
                     if (i == 19) {
                         Game.elements.scoresanityNext.innerText = "N/A";
@@ -115,6 +116,9 @@ const Game = {
             )) {
                 apClient.goal();
                 this.loseGame("Congratulations!", false);
+            }
+            if (this.bestScore < Game.score) {
+                this.bestScore = Game.score;
             }
         }
         Game.elements.score.innerText = Game.score = newScore;
