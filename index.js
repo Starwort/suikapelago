@@ -522,7 +522,7 @@ function trapImpulse() {
 function trapShuffle() {
     // Collect each body's position, then shuffle them
     const bodies = engine.world.bodies
-        .slice(3) // game walls
+        .filter(i => i.label != "Rectangle Body") // game walls
         .filter(i => i.id != Game.elements.previewBall.id);
     const bodyPositions = bodies.map(body => ({...body.position}));
     shuffle(bodyPositions);
@@ -534,7 +534,7 @@ function trapShuffle() {
 function trapThanos() {
     // Collect each body, shuffle them, then delete the latter half
     const bodies = engine.world.bodies
-        .slice(3) // game walls
+        .filter(i => i.label != "Rectangle Body") // game walls
         .filter(i => i.id != Game.elements.previewBall.id);
     shuffle(bodies);
     for (const body of bodies.slice(Math.floor(bodies.length / 2))) {
