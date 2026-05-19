@@ -756,27 +756,47 @@ const render = Render.create({
 const menuStatics = [
     Bodies.rectangle(Game.width / 2, Game.height * 0.4, 512, 512, {
         isStatic: true,
-        render: {sprite: {texture: './assets/img/bg-menu.png'}},
+        render: {sprite: {texture: './assets/img/bg-menu.png', xScale: 0.5, yScale: 0.5}},
+    }),
+
+    Bodies.rectangle(Game.width / 2, Game.height * 0.075, 268, 32, {
+        isStatic: true,
+        render: {sprite: {texture: './assets/img/title.png'}},
     }),
 
     // Add each fruit in a circle
-    ...Array.apply(null, Array(Game.fruitSizes.length)).map((_, index) => {
-        const x = (Game.width / 2) + 192 * Math.cos((Math.PI * 2 * index) / 12);
-        const y = (Game.height * 0.4) + 192 * Math.sin((Math.PI * 2 * index) / 12);
-        const r = 64;
+    ...[
+        [1, 0],
+        [9, 1],
+        [6, 5],
+        [7, 2],
+        [2, 4],
+        [4, 3],
+    ].map(([fruit, position]) => {
+        const x = (Game.width / 2) + 128 * Math.sin((Math.PI * 2 * position) / 6);
+        const y = (Game.height * 0.4) + -128 * Math.cos((Math.PI * 2 * position) / 6);
+        const r = 192;
 
-        return Bodies.circle(x, y, r, {
+        let body = Bodies.circle(x, y, r, {
             isStatic: true,
+            angle: rand() * Math.PI * 2,
             render: {
                 sprite: {
-                    texture: Game.fruitSizes[index].img,
+                    texture: Game.fruitSizes[fruit].img,
                     xScale: r / 1024,
                     yScale: r / 1024,
                 },
             },
         });
+        Matter.Body.setAngularVelocity(body, (rand() < 0.5 ? 1 : -1) * (rand() * 0.5 + 0.5) / 10_000);
+        return body;
     }),
 ];
+Events.on(runner, "beforeUpdate", e => {
+    for (const body of menuStatics) {
+        Matter.Body.setAngle(body, body.angle + body.angularVelocity * runner.delta);
+    }
+});
 
 const wallProps = {
     isStatic: true,
