@@ -209,7 +209,7 @@ class Goal(Choice):
 
     display_name = "Goal"
 
-    option_watermelon = 0
+    option_make_largest_fruit = 0
     option_score = 1
     option_both = 2
 

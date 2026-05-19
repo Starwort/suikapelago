@@ -38,7 +38,7 @@ class SuikapelagoWorld(World):
     def generate_early(self) -> None:
         if self.options.shuffle_fruit_order:
             self.random.shuffle(self.fruit_order)
-        if self.options.goal != suika_options.Goal.option_watermelon:
+        if self.options.goal != suika_options.Goal.option_make_largest_fruit:
             self.options.scoresanity = suika_options.Scoresanity(1)
         if self.options.trap_chance + self.options.bonus_points_chance > 100:
             raise OptionError("Trap chance + Bonus Points chance is greater than 100%!")
