@@ -114,6 +114,7 @@ const Game = {
                 this.goal == 1 || (this.goal == 2 && this.bestSize == 10)
             )) {
                 apClient.goal();
+                this.loseGame("Congratulations!", false);
             }
         }
         Game.elements.score.innerText = Game.score = newScore;
@@ -178,7 +179,6 @@ const Game = {
         Composite.add(engine.world, gameStatics);
 
         Game.calculateScore();
-        Game.elements.endTitle.innerText = 'Game Over!';
         Game.elements.ui.style.display = 'block';
         Game.elements.end.style.display = 'none';
         Game.elements.previewBall = Game.generateFruitBody(Game.width / 2, previewBallHeight, 0, {isStatic: true});
@@ -272,21 +272,30 @@ const Game = {
         }, 100);
     },
 
-    loseGame: function () {
+    loseGame: function (why = "Game Over!", autoReset = true) {
         Game.stateIndex = GameStates.LOSE;
         Game.elements.end.style.display = 'flex';
+        Game.elements.endTitle.innerText = why;
         runner.enabled = false;
         // Game.startGame();
 
-        setTimeout(() => {
-            Game.fruitsMerged = Array.apply(null, Array(Game.fruitSizes.length)).map(() => 0);
-            for (const body of engine.world.bodies.slice(3)) {
-                Matter.Composite.remove(engine.world, body);
-            }
+        if (autoReset) {
+            setTimeout(() => {
+                Game.fruitsMerged = Array.apply(null, Array(Game.fruitSizes.length)).map(() => 0);
+                for (const body of [...engine.world.bodies]) {
+                    Matter.Composite.remove(engine.world, body);
+                }
+                Game.startGame();
 
-            Game.startGame();
-            runner.enabled = true;
-        }, 5000);
+                Composite.remove(engine.world, Game.elements.previewBall);
+                Game.elements.previewBall = Game.generateFruitBody(render.mouse.position.x, previewBallHeight, Game.currentFruitSize, {
+                    isStatic: true,
+                    collisionFilter: {mask: 0x0040}
+                }, true);
+
+                runner.enabled = true;
+            }, 5000);
+        }
     },
 
     // Returns an index, or null
@@ -309,6 +318,7 @@ const Game = {
                 || (this.goal == 2 && this.score >= this.scoreThresholds[19])
             )) {
                 apClient.goal();
+                this.loseGame("Congratulations!", false);
             }
             this.bestSize = sizeIndex;
         }
@@ -538,13 +548,16 @@ function shuffle(array) {
 }
 
 apClient.deathLink.on("deathReceived", (source, time, cause) => {
+    let why;
     if (cause) {
         writeChatMsg(null, [{type: "color", text: cause, color: "red"}]);
+        why = cause;
     } else {
-        writeChatMsg(null, [{type: "player", text: source, player: {name: source}}, {type: "color", text: " died", color: "red"}]);
+        writeChatMsg(null, [{type: "player", text: source, player: {name: source}}, {type: "color", text: " died!", color: "red"}]);
+        why = `${source} died!`;
     }
     if (Game.deathLink) {
-        Game.loseGame();
+        Game.loseGame(why);
     }
 });
 
