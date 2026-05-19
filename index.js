@@ -48,7 +48,9 @@ const Game = {
             return;
         }
         this._secrecyDuration = value;
-        Game.elements.previewBall?.render.visible = value == 0;
+        if (Game.elements.previewBall) {
+            Game.elements.previewBall.render.visible = value == 0;
+        }
     },
     get blindDuration() {
         return this._blindDuration;
