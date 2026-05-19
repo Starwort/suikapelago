@@ -220,8 +220,8 @@ const Game = {
             if (e.mouse.button != 0) {
                 return;
             }
-            secrecyDuration--;
-            blindDuration--;
+            Game.secrecyDuration--;
+            Game.blindDuration--;
             Game.addFruit(e.mouse.position.x);
         });
 
