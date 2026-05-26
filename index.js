@@ -51,6 +51,7 @@ const Game = {
         if (Game.elements.previewBall) {
             Game.elements.previewBall.render.visible = value == 0;
         }
+        Game.elements.next.classList.toggle("secret", value != 0);
     },
     get blindDuration() {
         return this._blindDuration;
@@ -80,6 +81,8 @@ const Game = {
         nextFruitImg: document.getElementById('game-next-fruit'),
         scoresanityNext: document.getElementById('next-check'),
         scoresanityLabel: document.getElementById('scoresanity-label'),
+        cooldownDuration: document.getElementById("cooldown"),
+        cooldownLabel: document.getElementById("cooldown-label"),
         gameCeiling: document.getElementById("game-ceiling"),
         previewBall: null,
     },
@@ -106,14 +109,36 @@ const Game = {
     bonusPoints: 0,
     _scoreThresholds: null,
     get scoreThresholds() {
-        if (this._scoreThresholds) {
-            return this._scoreThresholds;
-        } else {
-            return this._scoreThresholds = Array.from(
+        if (!this._scoreThresholds) {
+            this._scoreThresholds = Array.from(
                 {length: 20},
-                (_, threshold) => Math.ceil((1500 + 500 * Game.scoresanityDifficulty) * Math.pow((threshold + 1) / 20, 2.5))
+                (_, threshold) => [
+                    Math.ceil((1500 + 500 * Game.scoresanityDifficulty) * Math.pow((threshold + 1) / 20, 2.5)),
+                    // `Score threshold ${threshold + 1}`,
+                    12 + threshold
+                ],
             );
+            if (this.scoresanityExtra) {
+                let id = 31;
+                for (let threshold = 5; threshold < 20; threshold++) {
+                    let numIntervals = Math.floor(threshold / 5);
+                    let intervalLow = this._scoreThresholds[threshold - 1][0];
+                    let intervalHigh = this._scoreThresholds[threshold][0];
+                    let interval = (intervalHigh - intervalLow) / (numIntervals + 1);
+                    for (let i = 1; i <= numIntervals; i++) {
+                        this._scoreThresholds.push(
+                            [
+                                Math.ceil(intervalLow + interval * i),
+                                // `Extra score threshold ${threshold}-${i}`,
+                                ++id,
+                            ],
+                        );
+                    }
+                }
+                this._scoreThresholds.sort((a, b) => (a[0] - b[0]));
+            }
         }
+        return this._scoreThresholds;
     },
     bestScore: 0,
     calculateScore: function () {
@@ -124,14 +149,14 @@ const Game = {
 
         let newScore = score + Game.bonusPoints * Game.bonusPoints * 5;
         if (Game.scoresanity) {
-            for (let i = 0; i < 20; i++) {
-                const scoreThreshold = Game.scoreThresholds[i];
+            for (let i = 0; i < this.scoreThresholds.length; i++) {
+                const [scoreThreshold, location] = Game.scoreThresholds[i];
                 if (this.bestScore < scoreThreshold && scoreThreshold <= newScore) {
-                    apClient.check(i + 12);
-                    if (i == 19) {
+                    apClient.check(location);
+                    if (i == this.scoreThresholds.length - 1) {
                         Game.elements.scoresanityNext.innerText = "N/A";
                     } else {
-                        Game.elements.scoresanityNext.innerText = Game.scoreThresholds[i + 1];
+                        Game.elements.scoresanityNext.innerText = Game.scoreThresholds[i + 1][0];
                     }
                 }
             }
@@ -248,7 +273,7 @@ const Game = {
                 let newSize = bodyA.sizeIndex + 1;
 
                 // Go back to smallest size
-                if (bodyA.circleRadius >= Game.fruitSizes[Game.fruitSizes.length - 1].radius) {
+                if (bodyA.circleRadius == Game.fruitSizes[Game.fruitSizes.length - 1].radius) {
                     newSize = 0;
                 }
 
@@ -377,7 +402,33 @@ const Game = {
         return circle;
     },
 
-    cooldown: 0,
+    formatDuration(duration) {
+        if (duration < 0) {
+            return "-" + this.formatDuration(-duration);
+        } else if (duration < 60_000) {
+            return `${+(duration / 1000).toFixed(2)}s`;
+        } else if (duration < 3600_000) {
+            let secondsPart = duration % 60_000 == 0
+                ? ""
+                : this.formatDuration(duration % 60_000);
+            return `${Math.floor(duration / 60_000)}m${secondsPart}`;
+        } else {
+            let minutesPart = duration % 3600_000 == 0
+                ? ""
+                : this.formatDuration(duration % 3600_000);
+            return `${Math.floor(duration / 3600_000)}h${minutesPart}`;
+        }
+    },
+    _cooldown: 0,
+    get cooldown() {
+        return this._cooldown;
+    },
+    set cooldown(value) {
+        this._cooldown = value;
+        this.elements.cooldownLabel.style.removeProperty("display");
+        this.elements.cooldownDuration.style.removeProperty("display");
+        this.elements.cooldownDuration.innerText = this.formatDuration(value);
+    },
     dropTimeout: null,
     addFruit: function (x) {
         if (Game.stateIndex !== GameStates.READY) return;
@@ -532,7 +583,7 @@ const getItems = (items, index) => {
                     break;
                 case USEF_DROP_COOLDOWN:
                     Game.cooldownReductions++;
-                    Game.cooldown = 60_000 * (1 - Game.cooldownReductions / Game.maxCooldownReductions);
+                    Game.cooldown = Game.maxCooldown * (1 - Game.cooldownReductions / Game.maxCooldownReductions);
                     break;
                 case USEF_POINTS:
                     Game.bonusPoints++;
@@ -648,7 +699,7 @@ chatBox.addEventListener("keydown", (event) => {
     }
 });
 
-windowLogin.addEventListener("submit", async (event) => {
+const apLogin = async (event) => {
     event.preventDefault();
     loginStatus.innerText = "Attempting to log in...";
     loginStatus.classList.remove("error");
@@ -656,10 +707,13 @@ windowLogin.addEventListener("submit", async (event) => {
         const {
             deathlink,
             shuffle_fruit,
+            also_shuffle_sizes,
             height_upgrade_count,
             cooldown_upgrade_count,
+            starting_cooldown,
             goal,
             scoresanity,
+            extra_scoresanity,
             difficulty,
             max_fruit_size,
             next_needs_unlock,
@@ -670,10 +724,13 @@ windowLogin.addEventListener("submit", async (event) => {
         console.log({
             deathlink,
             shuffle_fruit,
+            also_shuffle_sizes,
             height_upgrade_count,
             cooldown_upgrade_count,
+            starting_cooldown,
             goal,
             scoresanity,
+            extra_scoresanity,
             difficulty,
             max_fruit_size,
             next_needs_unlock,
@@ -691,6 +748,19 @@ windowLogin.addEventListener("submit", async (event) => {
             "Melon",
             "Watermelon",
         ];
+        const FRUIT_RADII = [
+            24,
+            32,
+            40,
+            56,
+            64,
+            72,
+            84,
+            96,
+            128,
+            160,
+            192,
+        ];
         for (let i = 0; i < 11; i++) {
             Game.fruitSizes[i].name = FRUIT_NAMES[i];
             Game.fruitSizes[i].imgEl = document.querySelector(`#circle-${i}`);
@@ -707,6 +777,9 @@ windowLogin.addEventListener("submit", async (event) => {
                     Game.fruitSizes[i].img = `./assets/img/circle${targetFruit}.png`;
                 Game.fruitSizes[i].name = FRUIT_NAMES[targetFruit];
                 Game.fruitSizes[i].location = targetFruit + 1;
+                if (also_shuffle_sizes) {
+                    Game.fruitSizes[i].radius = FRUIT_RADII[targetFruit];
+                }
             }
         }
         if (height_upgrade_count != 0) {
@@ -717,16 +790,17 @@ windowLogin.addEventListener("submit", async (event) => {
         if (cooldown_upgrade_count != 0) {
             Game.cooldownReductions = 0;
             Game.maxCooldownReductions = cooldown_upgrade_count;
-            Game.cooldown = 60_000;
+            Game.maxCooldown = Game.cooldown = (starting_cooldown ?? 60) * 1000;
         }
         Game.hasNext = !next_needs_unlock;
         Game.goal = goal;
         Game.scoresanity = scoresanity;
+        Game.scoresanityExtra = extra_scoresanity;
         Game.scoresanityDifficulty = difficulty;
         Game.maxFruitSize = max_fruit_size - 1;
         Game.deathLink = deathlink;
         if (scoresanity) {
-            Game.elements.scoresanityNext.innerText = Game.scoreThresholds[0];
+            Game.elements.scoresanityNext.innerText = Game.scoreThresholds[0][0];
         } else {
             Game.elements.scoresanityLabel.display = "none";
             Game.elements.scoresanityNext.display = "none";
@@ -737,8 +811,18 @@ windowLogin.addEventListener("submit", async (event) => {
     } catch (e) {
         loginStatus.innerText = e.toString();
         loginStatus.classList.add("error");
+        throw e;
     }
-});
+};
+windowLogin.addEventListener("submit", apLogin);
+
+const params = new URLSearchParams(window.location.search);
+if (params.get("player") && params.get("server") && params.get("password") != null) {
+    slotInput.value = params.get("player");
+    serverInput.value = params.get("server");
+    passwordInput.value = params.get("password");
+    apLogin({preventDefault: _ => void 0});
+}
 
 const engine = Engine.create();
 const runner = Runner.create();

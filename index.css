@@ -79,6 +79,10 @@ body {
     grid-area: next;
 }
 
+#next.secret {
+    display: none;
+}
+
 #circle {
     width: 100%;
     height: 100%;
