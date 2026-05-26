@@ -1,3 +1,4 @@
+import typing
 from dataclasses import dataclass
 
 from Options import (
@@ -12,17 +13,44 @@ from Options import (
 
 class Scoresanity(Toggle):
     """
-    Earn checks for various score thresholds
+    Earn checks for various score thresholds.
+
+    When using 'with_extra', one extra score check will be placed between checks
+    5-10, two extra score checks will be placed between checks 10-15, and three
+    extra checks will be placed between checks 15-20
     """
 
     display_name = "Scoresanity"
 
+    option_with_extra = 2
+
     default = 1
+
+    def __init__(self, value: int):
+        # skip Toggle's value folding
+        self.value = value
+
+    @classmethod
+    def from_text(cls, text: str) -> Toggle:
+        if text.lower() in {"2", "extra", "with_extra", "with extra"}:
+            return cls(2)
+        else:
+            return super().from_text(text)
+
+    @classmethod
+    def from_any(cls, data: typing.Any):
+        return cls.from_text(str(data))
+
+    @classmethod
+    def get_option_name(cls, value):
+        return ["No", "Yes", "With Extra"][int(value)]
 
 
 class ScoresanityDifficulty(Choice):
     """
-    How difficult the Scoresanity checks should be
+    How difficult the Scoresanity checks should be.
+
+    'Normal' is equivalent to a max score of 3000.
     """
 
     display_name = "Scoresanity Difficulty"
@@ -202,13 +230,35 @@ class HeightUpgradeCount(Range):
 
 class ShuffleFruitOrder(Toggle):
     """
-    Shuffle the fruit order. Fruit will still be the same size, but will use the
-    name and sprite of other fruit
+    Shuffle the fruit order. If set to 'visual', the fruit will get bigger as
+    you progress. If 'on', the size of the fruit is also shuffled (this makes
+    the early game harder but may make the late game easier)
     """
 
     display_name = "Shuffle Fruit Order"
 
+    option_visual = 2
+
     default = 0
+
+    def __init__(self, value: int):
+        # skip Toggle's value folding
+        self.value = value
+
+    @classmethod
+    def from_text(cls, text: str) -> Toggle:
+        if text.lower() in {"2", "visual_only", "visual only", "visual"}:
+            return cls(2)
+        else:
+            return super().from_text(text)
+
+    @classmethod
+    def from_any(cls, data: typing.Any):
+        return cls.from_text(str(data))
+
+    @classmethod
+    def get_option_name(cls, value):
+        return ["No", "Yes", "Visual Only"][int(value)]
 
 
 class NextNeedsUnlock(Toggle):
@@ -224,8 +274,8 @@ class NextNeedsUnlock(Toggle):
 class CooldownUpgradeCount(Range):
     """
     How many Progressive Cooldown Reduction items to add into the pool. When set
-    to 0, disables the feature. When non-zero, you start with a 60 second cooldown
-    between each fruit drop, which reduces linearly to zero with each Progressive
+    to 0, disables the feature. When non-zero, you start with a cooldown between
+    each fruit drop, which reduces linearly to zero with each Progressive
     Cooldown Reduction
     """
 
@@ -235,6 +285,20 @@ class CooldownUpgradeCount(Range):
     range_end = 10
 
     default = 5
+
+
+class StartingDropCooldown(Range):
+    """
+    How long your initial drop cooldown is, in seconds. Has no effect if
+    cooldown_upgrade_count is 0 (as that disables the feature entirely)
+    """
+
+    display_name = "Starting Drop Cooldown"
+
+    range_start = 10
+    range_end = 3600
+
+    default = 60
 
 
 class Goal(Choice):
@@ -264,6 +328,7 @@ option_groups = [
             ScoresanityDifficulty,
             HeightUpgradeCount,
             CooldownUpgradeCount,
+            StartingDropCooldown,
             NextNeedsUnlock,
         ],
     ),
@@ -293,6 +358,7 @@ class SuikapelagoOptions(PerGameCommonOptions):
     shuffle_fruit_order: ShuffleFruitOrder
     height_upgrade_count: HeightUpgradeCount
     cooldown_upgrade_count: CooldownUpgradeCount
+    starting_drop_cooldown: StartingDropCooldown
     next_needs_unlock: NextNeedsUnlock
     bonus_points_chance: BonusPointsChance
     trap_chance: TrapChance

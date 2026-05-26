@@ -25,17 +25,23 @@ def set_all_location_rules(world: SuikapelagoWorld) -> None:
             Has(PROG_FRUIT, count=upgrades_req),
         )
     if world.options.scoresanity:
-        for upgrades_req, score_threshold in enumerate(
-            range(world.options.starting_max_fruit_size - 1, 10), start=1
-        ):
+        scoresanity_requirements = {
+            i: max(0, (i + 1) // 2 - world.options.starting_max_fruit_size)
+            for i in range(1, 21)
+        }
+        for threshold, upgrades_req in scoresanity_requirements.items():
+            if upgrades_req == 0:
+                continue
             world.set_rule(
-                world.get_location(f"Score threshold {2 * score_threshold}"),
+                world.get_location(f"Score threshold {threshold}"),
                 Has(PROG_FRUIT, count=upgrades_req),
             )
-            world.set_rule(
-                world.get_location(f"Score threshold {2 * score_threshold + 1}"),
-                Has(PROG_FRUIT, count=upgrades_req),
-            )
+            if world.options.scoresanity == 2 and threshold != 20:
+                for i in range(1, threshold // 5 + 1):
+                    world.set_rule(
+                        world.get_location(f"Extra score threshold {threshold}-{i}"),
+                        Has(PROG_FRUIT, count=upgrades_req),
+                    )
     victory = world.get_location("Victory")
     world.set_rule(
         victory, Has(PROG_FRUIT, count=11 - world.options.starting_max_fruit_size)

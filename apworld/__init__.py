@@ -5,7 +5,8 @@ from BaseClasses import Region
 from Options import OptionError
 from worlds.AutoWorld import World
 
-from . import items, locations, rules, web_world, components as components
+from . import components as components
+from . import items, locations, rules, web_world
 from . import (
     options as suika_options,
 )  # rename due to a name conflict with World.options
@@ -38,13 +39,16 @@ class SuikapelagoWorld(World):
     def generate_early(self) -> None:
         if self.options.shuffle_fruit_order:
             self.random.shuffle(self.fruit_order)
-        if self.options.goal != suika_options.Goal.option_make_largest_fruit:
+        if (
+            self.options.goal != suika_options.Goal.option_make_largest_fruit
+            and self.options.scoresanity == 0
+        ):
             self.options.scoresanity = suika_options.Scoresanity(1)
         if self.options.trap_chance + self.options.bonus_points_chance > 100:
             raise OptionError("Trap chance + Bonus Points chance is greater than 100%!")
         self.num_locations = 11 + (
-            20 if self.options.scoresanity else 0
-        )  # one for each fruit size + 20 target scores
+            [0, 20, 50][self.options.scoresanity]
+        )  # one for each fruit size + 0/20/50 target scores
         self.min_num_items = (
             (11 - self.options.starting_max_fruit_size)
             + self.options.height_upgrade_count
@@ -80,10 +84,13 @@ class SuikapelagoWorld(World):
             "shuffle_fruit": (
                 self.fruit_order if self.options.shuffle_fruit_order else None
             ),
+            "also_shuffle_sizes": self.options.shuffle_fruit_order == 1,
             "height_upgrade_count": +self.options.height_upgrade_count,
             "cooldown_upgrade_count": +self.options.cooldown_upgrade_count,
+            "starting_cooldown": +self.options.starting_drop_cooldown,
             "goal": +self.options.goal,
             "scoresanity": bool(self.options.scoresanity),
+            "extra_scoresanity": self.options.scoresanity == 2,
             "difficulty": +self.options.scoresanity_difficulty,
             "max_fruit_size": +self.options.starting_max_fruit_size,
             "next_needs_unlock": bool(self.options.next_needs_unlock),

@@ -8,7 +8,6 @@ from . import items
 
 if TYPE_CHECKING:
     from . import SuikapelagoWorld
-
 BEST_FRUIT_LOCS = [
     "Best fruit: Cherry or better",
     "Best fruit: Strawberry or better",
@@ -23,9 +22,6 @@ BEST_FRUIT_LOCS = [
     "Best fruit: Watermelon or better",
 ]
 
-# Every location must have a unique integer ID associated with it.
-# We will have a lookup from location name to ID here that, in world.py, we will import and bind to the world class.
-# Even if a location doesn't exist on specific options, it must be present in this lookup.
 LOCATION_NAME_TO_ID = {
     "Best fruit: Cherry or better": 1,
     "Best fruit: Strawberry or better": 2,
@@ -39,6 +35,17 @@ LOCATION_NAME_TO_ID = {
     "Best fruit: Melon or better": 10,
     "Best fruit: Watermelon or better": 11,
     **{f"Score threshold {i}": 11 + i for i in range(1, 21)},
+    **{
+        threshold: 31 + i
+        for i, threshold in enumerate(
+            (
+                f"Extra score threshold {i}-{j}"
+                for i in range(5, 20)
+                for j in range(1, i // 5 + 1)
+            ),
+            start=1,
+        )
+    },
 }
 
 
@@ -53,7 +60,19 @@ def create_all_locations(world: SuikapelagoWorld) -> None:
 
 def create_regular_locations(world: SuikapelagoWorld) -> None:
     game = world.get_region("Game")
-    game.add_locations(LOCATION_NAME_TO_ID, SuikapelagoLocation)
+
+    def is_location_enabled(location):
+        name, _ = location
+        return (
+            "Best fruit" in name
+            or ("Score" in name and world.options.scoresanity)
+            or ("Extra" in name and world.options.scoresanity == 2)
+        )
+
+    game.add_locations(
+        dict(filter(is_location_enabled, LOCATION_NAME_TO_ID.items())),
+        SuikapelagoLocation,
+    )
 
 
 def create_events(world: SuikapelagoWorld) -> None:
