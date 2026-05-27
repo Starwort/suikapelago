@@ -203,10 +203,6 @@ const Game = {
     startGameOnce() {
         this.startGame();
 
-        setTimeout(() => {
-            Game.stateIndex = GameStates.READY;
-        }, 250);
-
         Events.on(mouseConstraint, 'mousedown', function (e) {
             if (e.mouse.button != 0) {
                 return;
@@ -277,6 +273,10 @@ const Game = {
     startGame: function () {
         Game.sounds.click.play();
 
+        setTimeout(() => {
+            Game.stateIndex = GameStates.READY;
+        }, 250);
+
         Composite.remove(engine.world, menuStatics);
         Composite.add(engine.world, gameStatics);
 
@@ -324,13 +324,13 @@ const Game = {
                 for (const body of [...engine.world.bodies]) {
                     Matter.Composite.remove(engine.world, body);
                 }
-                Game.startGame();
 
                 Composite.remove(engine.world, Game.elements.previewBall);
                 Game.elements.previewBall = Game.generateFruitBody(render.mouse.position.x, previewBallHeight, Game.currentFruitSize, {
                     isStatic: true,
                     collisionFilter: {mask: 0x0040}
                 }, true);
+                Game.startGame();
 
                 runner.enabled = true;
             }, 5000);
