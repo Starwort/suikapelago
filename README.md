@@ -1,7 +1,7 @@
-# Suika / Watermelon Clone
+# Suikapelago
 
 ![](./screenshot.png)
 
-Built using plain javascript and the [matter.js](https://github.com/liabru/matter-js) physics engine.
+Suikapelago is an Archipelago-compatible clone of Suika Game.
 
-**[Play the game](https://tombofry.github.io/suika-game/)**
+**[Play the game](https://starwort.github.io/suikapelago/)**
