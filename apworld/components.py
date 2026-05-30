@@ -18,7 +18,7 @@ def run_client(*args: str) -> None:
     if launch_args.name and launch_args.connect:
         query = "?" + urlencode({
             "player": launch_args.name,
-            "server": launch_args.connect,
+            "server": f"{launch_args.url.hostname}:{launch_args.url.port}",
             "password": launch_args.password,
         })
 
