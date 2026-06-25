@@ -108,6 +108,8 @@ body {
     height: 100%;
     width: 100%;
     max-height: 100%;
+    min-width: 0;
+    min-height: 0;
 }
 
 #chat {
@@ -131,8 +133,14 @@ body {
     grid-area: msg;
     height: 100%;
     max-height: 100%;
+    hyphens: auto;
+    word-wrap: break-word;
     overflow-y: scroll;
     color: rgb(50, 50, 50);
+}
+
+#chat-log>span {
+    width: 100%
 }
 
 .progression {
